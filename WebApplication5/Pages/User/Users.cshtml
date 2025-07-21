@@ -1,0 +1,29 @@
+﻿@page
+@using WebApplication5.Migrations
+@model WebApplication5.Pages.User.UsersModel
+<h2>Поиск пользователя</h2>
+<form method="post">
+    <input type="text" asp-for="UserName" />
+    <button type="submit">Добавить</button>
+</form>
+<br />
+<br />
+        <h3>Список пользователей</h3>
+        
+        <ul>
+@foreach(var us in Model.Users)
+{
+    <li>
+        @us.Name
+            <form method="post" asp-page-handler="Delete" asp-route-id="@us.Id">
+            <button type="submit">Удалить</button>
+        </form>
+        </li>
+}  
+
+</ul>
+
+   
+
+
+  
