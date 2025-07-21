@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace WebApplication5.Pages.User
 {
@@ -21,9 +22,15 @@ namespace WebApplication5.Pages.User
         public List<UserInfo> Users { get; set; } = new();
         public async Task OnGetAsync()
         {
+            var search = _context.UserList.AsQueryable();
 
-            Users = await _context.UserList.ToListAsync();
-            
+            if (!string.IsNullOrEmpty(SearchString))
+            {
+                search = search.Where(n => n.Name.Contains(SearchString));
+            }
+
+            Users = await search.ToListAsync();
+
         }
 
         [BindProperty]
@@ -45,7 +52,7 @@ namespace WebApplication5.Pages.User
             _context.UserList.Add(user);
             await _context.SaveChangesAsync();
 
-            return RedirectToPage();
+            return RedirectToPage(new { SearchString });
         }
         public async Task<IActionResult> OnPostDeleteAsync(int id)
         {
@@ -57,8 +64,14 @@ namespace WebApplication5.Pages.User
                 await _context.SaveChangesAsync();
                 return RedirectToPage();
             }
-            return RedirectToPage();
-            
+            return RedirectToPage(new { SearchString });
+
         }
+        public IList<UserInfo> NameFilter { get; set; }
+
+        [BindProperty(SupportsGet = true)]
+        public string? SearchString { get; set; }
+
+        
     }
 }
